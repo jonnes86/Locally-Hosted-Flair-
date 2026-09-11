@@ -1,0 +1,32 @@
+{
+  "capture_id": "scan_flair_idle",
+  "type": "wideband_scan",
+  "version": "1.0",
+  "date_utc": "2026-09-11T02:18:53Z",
+  "date_local": "2026-09-10T21:23:53.175173-05:00",
+  "phase": "1",
+  "equipment": {
+    "sdr": {
+      "model": "RTL-SDR.com Blog V3",
+      "chipset": "R820T2 + RTL2832U"
+    }
+  },
+  "rf_parameters": {
+    "start_frequency_hz": 902000000,
+    "stop_frequency_hz": 928000000,
+    "bin_width_hz": 25000,
+    "gain_db": 20.0,
+    "agc": false,
+    "ppm_correction": 0
+  },
+  "scan": {
+    "interval_seconds": 1,
+    "total_duration_seconds": 300,
+    "csv_filename": "scan_flair_idle.csv",
+    "csv_sha256": "3b5b6a6cd685be54055adc767bbb02d834f43c029fccdf9dfb39b893854cd9ac",
+    "csv_filesize_bytes": 3268736
+  },
+  "capture_start_utc": "2026-09-11T02:18:53Z",
+  "capture_end_utc": "2026-09-11T02:23:53Z",
+  "notes": "Flair Puck/Bridge and Vent01 powered on, system idle, no commands"
+}

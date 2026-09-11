@@ -1,0 +1,32 @@
+{
+  "capture_id": "baseline_noflair",
+  "type": "wideband_scan",
+  "version": "1.0",
+  "date_utc": "2026-09-11T02:15:18Z",
+  "date_local": "2026-09-10T21:17:19.424837-05:00",
+  "phase": "1",
+  "equipment": {
+    "sdr": {
+      "model": "RTL-SDR.com Blog V3",
+      "chipset": "R820T2 + RTL2832U"
+    }
+  },
+  "rf_parameters": {
+    "start_frequency_hz": 902000000,
+    "stop_frequency_hz": 928000000,
+    "bin_width_hz": 25000,
+    "gain_db": 20.0,
+    "agc": false,
+    "ppm_correction": 0
+  },
+  "scan": {
+    "interval_seconds": 1,
+    "total_duration_seconds": 120,
+    "csv_filename": "baseline_noflair.csv",
+    "csv_sha256": "f1997bee58c60ebd9586d40ad37e4b9e500133614cd04c5e9a570a38e4b0aa8b",
+    "csv_filesize_bytes": 1307494
+  },
+  "capture_start_utc": "2026-09-11T02:15:18Z",
+  "capture_end_utc": "2026-09-11T02:17:19Z",
+  "notes": "Baseline scan, all Flair devices powered off"
+}
