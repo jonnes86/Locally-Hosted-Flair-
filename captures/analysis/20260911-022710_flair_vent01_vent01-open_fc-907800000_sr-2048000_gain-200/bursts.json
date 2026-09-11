@@ -1,0 +1,263 @@
+{
+  "source_file": "20260911-022710_flair_vent01_vent01-open_fc-907800000_sr-2048000_gain-200.cu8",
+  "sample_rate": 2048000,
+  "total_seconds": 60.0,
+  "noise_floor_db": -43.099998474121094,
+  "threshold_db": 15.0,
+  "action_time_seconds": 10.0,
+  "burst_count": 28,
+  "bursts": [
+    {
+      "burst_number": 1,
+      "start_seconds": 6.34,
+      "end_seconds": 6.34,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -27.9,
+      "start_sample": 12984320,
+      "end_sample": 12984320
+    },
+    {
+      "burst_number": 2,
+      "start_seconds": 6.528,
+      "end_seconds": 6.528,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -27.9,
+      "start_sample": 13369344,
+      "end_sample": 13369344
+    },
+    {
+      "burst_number": 3,
+      "start_seconds": 8.784,
+      "end_seconds": 8.784,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -27.9,
+      "start_sample": 17989632,
+      "end_sample": 17989632
+    },
+    {
+      "burst_number": 4,
+      "start_seconds": 24.734,
+      "end_seconds": 24.734,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -27.0,
+      "start_sample": 50655232,
+      "end_sample": 50655232
+    },
+    {
+      "burst_number": 5,
+      "start_seconds": 26.294,
+      "end_seconds": 26.294,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -27.3,
+      "start_sample": 53850112,
+      "end_sample": 53850112
+    },
+    {
+      "burst_number": 6,
+      "start_seconds": 26.398,
+      "end_seconds": 26.41,
+      "duration_ms": 12.0,
+      "peak_amplitude_db": -22.3,
+      "start_sample": 54063104,
+      "end_sample": 54087680
+    },
+    {
+      "burst_number": 7,
+      "start_seconds": 26.42,
+      "end_seconds": 26.43,
+      "duration_ms": 10.0,
+      "peak_amplitude_db": -22.0,
+      "start_sample": 54108160,
+      "end_sample": 54128640
+    },
+    {
+      "burst_number": 8,
+      "start_seconds": 27.41,
+      "end_seconds": 27.43,
+      "duration_ms": 20.0,
+      "peak_amplitude_db": -20.2,
+      "start_sample": 56135680,
+      "end_sample": 56176640
+    },
+    {
+      "burst_number": 9,
+      "start_seconds": 31.278,
+      "end_seconds": 31.286,
+      "duration_ms": 8.0,
+      "peak_amplitude_db": -22.2,
+      "start_sample": 64057344,
+      "end_sample": 64073728
+    },
+    {
+      "burst_number": 10,
+      "start_seconds": 31.316,
+      "end_seconds": 31.318,
+      "duration_ms": 2.0,
+      "peak_amplitude_db": -23.8,
+      "start_sample": 64135168,
+      "end_sample": 64139264
+    },
+    {
+      "burst_number": 11,
+      "start_seconds": 31.326,
+      "end_seconds": 31.326,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -22.0,
+      "start_sample": 64155648,
+      "end_sample": 64155648
+    },
+    {
+      "burst_number": 12,
+      "start_seconds": 31.366,
+      "end_seconds": 31.374,
+      "duration_ms": 8.0,
+      "peak_amplitude_db": -22.8,
+      "start_sample": 64237568,
+      "end_sample": 64253952
+    },
+    {
+      "burst_number": 13,
+      "start_seconds": 31.404,
+      "end_seconds": 31.406,
+      "duration_ms": 2.0,
+      "peak_amplitude_db": -24.2,
+      "start_sample": 64315392,
+      "end_sample": 64319488
+    },
+    {
+      "burst_number": 14,
+      "start_seconds": 31.414,
+      "end_seconds": 31.414,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -22.8,
+      "start_sample": 64335872,
+      "end_sample": 64335872
+    },
+    {
+      "burst_number": 15,
+      "start_seconds": 31.454,
+      "end_seconds": 31.46,
+      "duration_ms": 6.0,
+      "peak_amplitude_db": -22.7,
+      "start_sample": 64417792,
+      "end_sample": 64430080
+    },
+    {
+      "burst_number": 16,
+      "start_seconds": 31.492,
+      "end_seconds": 31.502,
+      "duration_ms": 10.0,
+      "peak_amplitude_db": -22.8,
+      "start_sample": 64495616,
+      "end_sample": 64516096
+    },
+    {
+      "burst_number": 17,
+      "start_seconds": 31.54,
+      "end_seconds": 31.548,
+      "duration_ms": 8.0,
+      "peak_amplitude_db": -23.3,
+      "start_sample": 64593920,
+      "end_sample": 64610304
+    },
+    {
+      "burst_number": 18,
+      "start_seconds": 31.58,
+      "end_seconds": 31.58,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -24.2,
+      "start_sample": 64675840,
+      "end_sample": 64675840
+    },
+    {
+      "burst_number": 19,
+      "start_seconds": 31.588,
+      "end_seconds": 31.59,
+      "duration_ms": 2.0,
+      "peak_amplitude_db": -22.5,
+      "start_sample": 64692224,
+      "end_sample": 64696320
+    },
+    {
+      "burst_number": 20,
+      "start_seconds": 31.798,
+      "end_seconds": 31.888,
+      "duration_ms": 90.0,
+      "peak_amplitude_db": -19.0,
+      "start_sample": 65122304,
+      "end_sample": 65306624
+    },
+    {
+      "burst_number": 21,
+      "start_seconds": 46.29,
+      "end_seconds": 46.29,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -27.9,
+      "start_sample": 94801920,
+      "end_sample": 94801920
+    },
+    {
+      "burst_number": 22,
+      "start_seconds": 48.904,
+      "end_seconds": 48.904,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -26.0,
+      "start_sample": 100155392,
+      "end_sample": 100155392
+    },
+    {
+      "burst_number": 23,
+      "start_seconds": 48.97,
+      "end_seconds": 48.97,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -21.0,
+      "start_sample": 100290560,
+      "end_sample": 100290560
+    },
+    {
+      "burst_number": 24,
+      "start_seconds": 51.652,
+      "end_seconds": 51.658,
+      "duration_ms": 6.0,
+      "peak_amplitude_db": -25.8,
+      "start_sample": 105783296,
+      "end_sample": 105795584
+    },
+    {
+      "burst_number": 25,
+      "start_seconds": 51.666,
+      "end_seconds": 51.666,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -27.9,
+      "start_sample": 105811968,
+      "end_sample": 105811968
+    },
+    {
+      "burst_number": 26,
+      "start_seconds": 51.694,
+      "end_seconds": 51.694,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -27.9,
+      "start_sample": 105869312,
+      "end_sample": 105869312
+    },
+    {
+      "burst_number": 27,
+      "start_seconds": 51.712,
+      "end_seconds": 51.714,
+      "duration_ms": 2.0,
+      "peak_amplitude_db": -25.8,
+      "start_sample": 105906176,
+      "end_sample": 105910272
+    },
+    {
+      "burst_number": 28,
+      "start_seconds": 56.944,
+      "end_seconds": 56.944,
+      "duration_ms": 0.0,
+      "peak_amplitude_db": -27.9,
+      "start_sample": 116621312,
+      "end_sample": 116621312
+    }
+  ]
+}
