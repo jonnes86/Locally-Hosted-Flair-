@@ -86,8 +86,10 @@ if (-not $SkipPython -and -not $DryRun) {
     $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
     if ($pythonCmd) {
         Write-Host "  Found Python at: $($pythonCmd.Source)"
-        & python -m pip install --upgrade pip 2>&1 | Out-Null
-        & python -m pip install numpy matplotlib 2>&1
+        $ErrorActionPreference = "Continue"
+        & python -m pip install --upgrade pip 2>&1 | Where-Object { $_ -notmatch "WARNING" } | Out-Null
+        & python -m pip install numpy matplotlib 2>&1 | ForEach-Object { Write-Host "  $_" }
+        $ErrorActionPreference = "Stop"
         Write-Host "  Python dependencies installed." -ForegroundColor Green
     } else {
         Write-Host "  WARNING: Python not found. Install Python 3.x first." -ForegroundColor Red
