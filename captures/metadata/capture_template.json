@@ -1,0 +1,99 @@
+{
+  "capture_id": "YYYYMMDD-HHMMSS_flair_<device>_<action>_fc-<hz>_sr-<sps>_gain-<db>",
+  "version": "1.0",
+  "operator": "",
+  "date_utc": "YYYY-MM-DDTHH:MM:SSZ",
+  "date_local": "YYYY-MM-DDTHH:MM:SS-05:00",
+  "phase": "1",
+  "experiment_number": null,
+  "equipment": {
+    "sdr": {
+      "model": "RTL-SDR.com Blog V3",
+      "chipset": "R820T2 + RTL2832U",
+      "serial": "",
+      "driver": "WinUSB via Zadig",
+      "software": "rtl_sdr / rtl_power",
+      "software_version": ""
+    },
+    "antenna": {
+      "model": "",
+      "type": "",
+      "gain_dbi": null,
+      "polarization": "",
+      "position": ""
+    }
+  },
+  "flair_devices": {
+    "gateway": {
+      "model": "",
+      "serial": "",
+      "firmware": "",
+      "powered": true
+    },
+    "target_vent": {
+      "model": "Flair Smart Vent",
+      "identifier": "vent01",
+      "serial": "",
+      "firmware": "",
+      "powered": true,
+      "battery_state": "installed"
+    }
+  },
+  "rf_parameters": {
+    "center_frequency_hz": null,
+    "sample_rate_sps": null,
+    "gain_db": null,
+    "agc": false,
+    "bandwidth_hz": null,
+    "ppm_correction": 0
+  },
+  "capture": {
+    "action": "",
+    "action_description": "",
+    "duration_seconds": null,
+    "raw_filename": "",
+    "raw_format": "cu8",
+    "raw_filesize_bytes": null,
+    "raw_sha256": "",
+    "command_tool": "",
+    "command_line": ""
+  },
+  "timeline": [
+    {
+      "time_utc": "YYYY-MM-DDTHH:MM:SS.sssZ",
+      "time_offset_sec": 0.0,
+      "event": "capture_start",
+      "details": ""
+    },
+    {
+      "time_utc": "",
+      "time_offset_sec": null,
+      "event": "action_performed",
+      "details": ""
+    },
+    {
+      "time_utc": "",
+      "time_offset_sec": null,
+      "event": "capture_end",
+      "details": ""
+    }
+  ],
+  "environment": {
+    "location": "",
+    "distance_antenna_to_gateway_m": null,
+    "distance_antenna_to_vent_m": null,
+    "other_rf_sources": "",
+    "notes": ""
+  },
+  "observations": {
+    "signals_detected": null,
+    "signal_ids": [],
+    "notes": ""
+  },
+  "analysis": {
+    "analyzed": false,
+    "analysis_date": "",
+    "analysis_notes": "",
+    "related_signals": []
+  }
+}

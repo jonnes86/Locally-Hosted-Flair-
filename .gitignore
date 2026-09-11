@@ -1,0 +1,80 @@
+# =============================================================================
+# Flair Local — .gitignore
+# =============================================================================
+# Raw IQ captures and large derived files are excluded from Git.
+# Metadata, hashes, analysis notes, and scripts ARE tracked.
+# =============================================================================
+
+# --- Raw IQ capture files ---
+*.raw
+*.cu8
+*.cs8
+*.cs16
+*.cf32
+*.cfile
+*.complex16u
+*.complex16s
+*.complex
+*.iq
+*.sdriq
+
+# --- SDR recording formats ---
+*.wav
+# Note: .wav is excluded because SDR tools often save IQ as WAV.
+# If you need to track non-IQ WAV files, add them with git add -f.
+
+# --- Large intermediate files ---
+*.bin
+*.dat
+captures/raw/
+captures/processed/
+
+# --- SDR++ / SDR software temp files ---
+*.sdrpp_*
+config.json
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+venv/
+.venv/
+env/
+.env/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# --- Universal Radio Hacker project files (may be large) ---
+# Track .proto.xml and .fuzz.xml selectively
+# *.proto.xml
+# *.fuzz.xml
+
+# --- Inspectrum temp ---
+*.inspectrum
+
+# =============================================================================
+# KEEP THESE IN GIT (do not add exclusions for):
+#   captures/metadata/*.json   — Capture metadata
+#   captures/metadata/*.sha256 — File hashes
+#   captures/metadata/*.csv    — Scan results (small)
+#   captures/analysis/         — Spectrograms, notes
+#   docs/                      — All documentation
+#   tools/                     — All scripts
+# =============================================================================
