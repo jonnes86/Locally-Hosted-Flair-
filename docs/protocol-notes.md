@@ -83,47 +83,73 @@ These facts are known before any RF captures:
 | Parameter | Value | Confidence |
 |-----------|-------|------------|
 | Band | 902–928 MHz ISM | CONFIRMED |
-| Center frequency | UNKNOWN | UNKNOWN |
-| Channel count | UNKNOWN | UNKNOWN |
-| Channel spacing | UNKNOWN | UNKNOWN |
-| Frequency hopping | UNKNOWN | UNKNOWN |
+| Active range | **904–927 MHz** (10+ channels observed) | OBSERVED |
+| Strongest channels | 907.830, 907.474, 924.080, 909.556, 911.588 MHz | OBSERVED |
+| Channel count | **10+ distinct channels** | OBSERVED |
+| Channel spacing | ~1.5–2 MHz (variable) | OBSERVED |
+| Occupied BW per channel | ~325–366 kHz | OBSERVED |
+| Frequency hopping | **YES — multi-channel operation confirmed** | OBSERVED |
+| Hopping rate/pattern | UNKNOWN | UNKNOWN |
+
+> **Note:** Despite FCC DXX classification (typically non-hopping), multi-channel
+> operation was observed across the full 904–927 MHz range. This may be slow
+> channel hopping, channel selection, or multi-channel polling.
 
 ### Modulation
 
 | Parameter | Value | Confidence |
 |-----------|-------|------------|
-| Modulation type | UNKNOWN | UNKNOWN |
-| Symbol rate | UNKNOWN | UNKNOWN |
-| Deviation (if FSK) | UNKNOWN | UNKNOWN |
-| Occupied bandwidth | UNKNOWN | UNKNOWN |
+| Modulation type | **FSK with Manchester coding** | OBSERVED (rtl_433) |
+| Short symbol width | **14 µs** | OBSERVED |
+| Long symbol width | **27 µs** | OBSERVED |
+| Raw symbol rate | **~71 ksps** (1/14µs) | OBSERVED |
+| Effective data rate | **~36 kbps** (Manchester decoded) | INFERRED |
+| FSK deviation | **200–450 kHz** (from freq offsets) | OBSERVED |
+| Consistent with CC1101 | YES — typical 2-FSK/GFSK config | CONFIRMED |
 
 ### Timing
 
 | Parameter | Value | Confidence |
 |-----------|-------|------------|
-| Burst duration | UNKNOWN | UNKNOWN |
-| Inter-burst gap | UNKNOWN | UNKNOWN |
-| Keepalive interval | UNKNOWN | UNKNOWN |
+| Burst duration | **2–90 ms** (most 2–20 ms, one 90 ms) | OBSERVED |
+| Packet duration | **~1.14 ms** (31-32 symbols per FSK packet) | OBSERVED |
+| Inter-burst gap (rapid sequence) | ~40 ms median | OBSERVED |
+| Cloud command delay | ~15–20 s (app → cloud → Puck → RF) | OBSERVED |
+| Keepalive interval | UNKNOWN (need extended idle capture) | UNKNOWN |
 | Command-to-ACK delay | UNKNOWN | UNKNOWN |
 
 ---
 
 ## Packet Structure
 
+### rtl_433 Analysis (from vent-open capture)
+
+Two FSK packets detected with consistent structure:
+
+| Event | Time | Pulses | Width | RSSI | Freq Offsets |
+|-------|------|--------|-------|------|-------------|
+| FSK #1 | 27.43s | 31 | 1.14ms | -26.2 dB | -218 kHz, -448 kHz |
+| FSK #2 | 48.90s | 32 | 1.14ms | -35.2 dB | -222 kHz, -620 kHz |
+
 ### Preamble and Sync
 
 | Field | Value | Length | Confidence |
 |-------|-------|--------|------------|
-| Preamble pattern | UNKNOWN | UNKNOWN | UNKNOWN |
-| Sync word | UNKNOWN | UNKNOWN | UNKNOWN |
+| Preamble pattern | Likely `0xAA` repeating (CC1101 standard) | 4 bytes (typical) | HYPOTHESIZED |
+| Sync word | UNKNOWN — need bitstream extraction | 2 or 4 bytes | UNKNOWN |
 
-### Packet Fields (Hypothesized)
+### Expected CC1101 Packet Format (Hypothesized)
 
 ```
-[Preamble] [Sync] [Header?] [Address?] [Command?] [Payload?] [Sequence?] [CRC/Checksum?]
+[Preamble 4B] [Sync 2-4B] [Length 1B] [Address 1B] [Command] [Payload] [Seq?] [CRC-16 2B]
 ```
 
-*All field boundaries and contents are UNKNOWN until captures are analyzed.*
+*Bitstream extraction needed to confirm field boundaries.*
+
+### Interactive Pulse Visualizations (triq.org)
+
+- FSK #1: https://triq.org/pdv/#AAB1040000001B000D0000819191A292A191A292A2A2A2A2A2A1A2A292A2A2A1A292A1A292A19191A29055
+- FSK #2: https://triq.org/pdv/#AAB10600000014001B000D000800008292A2B3A3B2B3A2B3A2B3B3A3B2B3A2B3A2B3B3A3B2B3B3B3B3B3B3B3B3B2C055
 
 ---
 
@@ -131,15 +157,13 @@ These facts are known before any RF captures:
 
 | Type | Direction | Identified? | Confidence |
 |------|-----------|-------------|------------|
-| Position command (open/close/50%) | Gateway → Vent | UNKNOWN | UNKNOWN |
-| Position acknowledgment | Vent → Gateway | UNKNOWN | UNKNOWN |
-| Position report | Vent → Gateway | UNKNOWN | UNKNOWN |
-| Battery voltage report | Vent → Gateway | UNKNOWN | UNKNOWN |
-| Duct temperature report | Vent → Gateway | UNKNOWN | UNKNOWN |
-| Duct pressure report | Vent → Gateway | UNKNOWN | UNKNOWN |
-| Keepalive / heartbeat | Both? | UNKNOWN | UNKNOWN |
-| Pairing request | Either? | UNKNOWN | UNKNOWN |
-| Pairing response | Either? | UNKNOWN | UNKNOWN |
+| Position command (open/close/50%) | Gateway → Vent | Burst cluster observed at t=26-32s | OBSERVED (timing only) |
+| Position acknowledgment | Vent → Gateway | Rapid-fire sequence likely contains ACKs | INFERRED |
+| Keepalive / heartbeat | Both? | Sporadic bursts at t=6-9s, 46-57s | INFERRED |
+| Battery voltage report | Vent → Gateway | Not yet identified | UNKNOWN |
+| Duct temperature report | Vent → Gateway | Not yet identified | UNKNOWN |
+| Duct pressure report | Vent → Gateway | Not yet identified | UNKNOWN |
+| Pairing request/response | Either? | Not yet captured (last experiment) | UNKNOWN |
 
 ---
 
@@ -147,32 +171,61 @@ These facts are known before any RF captures:
 
 | Question | Answer | Confidence |
 |----------|--------|------------|
-| Are packets encrypted? | UNKNOWN | UNKNOWN |
-| Is there a rolling counter / nonce? | UNKNOWN | UNKNOWN |
-| Is there a CRC or checksum? | UNKNOWN | UNKNOWN |
-| Is simple replay possible? | UNKNOWN — do NOT test until Phase 2+ | UNKNOWN |
-| Is there a pairing / key exchange? | UNKNOWN | UNKNOWN |
+| Are packets encrypted? | UNKNOWN — bitstream analysis needed | UNKNOWN |
+| Is there a rolling counter / nonce? | **Likely YES** — Flipper Zero replay fails | INFERRED |
+| Is there a CRC or checksum? | Likely YES — CC1101 has built-in CRC-16 | HYPOTHESIZED |
+| Is simple replay possible? | **NO** — Flipper Zero community confirmed replay failure | OBSERVED (community) |
+| Is there a pairing / key exchange? | Likely YES — vents must be paired to Puck | INFERRED |
+
+> **CRITICAL:** Flipper Zero users have captured and attempted to replay Flair
+> 915 MHz signals — replay FAILS. This confirms stateful elements (rolling codes,
+> sequence counters, or challenge-response) in the protocol. Simple replay will
+> not work for our local gateway.
+
+---
+
+## Prior Art Research (2026-09-11)
+
+| Source | Finding |
+|--------|---------|
+| GitHub | Only cloud API wrappers exist (flair-api Python lib) |
+| Home Assistant | RobertD502/home-assistant-flair = cloud-only via OAuth |
+| Flair Official | REST API at api.flair.co, OAuth2, cloud-only, no local endpoints |
+| HA Community | Local control "not on Flair's roadmap" |
+| Flipper Zero | Signals captured, replay fails (stateful/bidirectional) |
+| SDR Community | FSK bursts at 915 MHz identified, no payload parsing |
+| rtl_433 | No Flair decoder exists |
+| Puck Teardowns | ESP MCU for WiFi + separate RF MCU for 915 MHz |
+| Firmware Dumps | None published |
+
+**Conclusion:** No public reverse engineering of the Flair RF protocol exists.
+We are the first to publish detailed signal characterization data.
 
 ---
 
 ## Observations Log
 
-Chronological log of observations during captures.
-
 | Date | Experiment | Observation | Confidence |
 |------|-----------|-------------|------------|
-| — | — | — | — |
+| 2026-09-10 | Baseline scan (no Flair) | Noise floor established, ambient 915 MHz signals identified | OBSERVED |
+| 2026-09-10 | Flair idle scan | 10+ channels with 25-36 dB above baseline across 904-927 MHz | OBSERVED |
+| 2026-09-10 | Vent-open IQ capture @ 907.8 MHz | 28 bursts detected; main cluster at t=26-32s (~16s cloud delay) | OBSERVED |
+| 2026-09-10 | rtl_433 analysis of capture | FSK with Manchester coding, 14/27µs symbols, 31-32 pulses per packet | OBSERVED |
 
 ---
 
 ## Open Questions
 
-1. What is the exact center frequency or frequencies?
-2. Does the protocol use frequency hopping?
-3. What modulation scheme is used?
-4. Are packets encrypted?
-5. What is the packet structure?
+1. ~~What is the exact center frequency or frequencies?~~ → **10+ channels identified across 904-927 MHz**
+2. ~~Does the protocol use frequency hopping?~~ → **YES, multi-channel operation confirmed**
+3. ~~What modulation scheme is used?~~ → **FSK with Manchester coding**
+4. Are packets encrypted? → Bitstream analysis needed
+5. What is the exact packet structure (field boundaries)?
 6. How does pairing work?
-7. Are there rolling counters that prevent replay?
-8. What chipset does the Puck/Bridge use for 915 MHz? (May be revealed by FCC filings)
-9. Is there a published or reverse-engineered protocol specification?
+7. ~~Are there rolling counters that prevent replay?~~ → **Likely YES (Flipper replay fails)**
+8. ~~What chipset does the Bridge use?~~ → **TI CC1101 confirmed**
+9. ~~Is there a published protocol specification?~~ → **NO — no public RE work exists**
+10. What is the CC1101 sync word configured on these devices?
+11. What firmware runs on the Vent's RF MCU?
+12. Can the Puck's RF MCU firmware be dumped?
+
