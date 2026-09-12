@@ -1,0 +1,53 @@
+{
+  "capture_id": "20260912-004823_flair_vent01_vent01-open-highgain_fc-907800000_sr-2048000_gain-400",
+  "version": "1.0",
+  "date_utc": "2026-09-12T00:48:28Z",
+  "date_local": "2026-09-11T19:48:28.831625-05:00",
+  "phase": "1",
+  "equipment": {
+    "sdr": {
+      "model": "RTL-SDR.com Blog V3",
+      "chipset": "R820T2 + RTL2832U"
+    }
+  },
+  "flair_devices": {
+    "target_device": "vent01"
+  },
+  "rf_parameters": {
+    "center_frequency_hz": 907800000,
+    "sample_rate_sps": 2048000,
+    "gain_db": 40.0,
+    "agc": false,
+    "ppm_correction": 0
+  },
+  "capture": {
+    "action": "vent01-open-highgain",
+    "duration_seconds": 30,
+    "raw_filename": "20260912-004823_flair_vent01_vent01-open-highgain_fc-907800000_sr-2048000_gain-400.cu8",
+    "raw_format": "cu8",
+    "raw_filesize_bytes": 245760000,
+    "raw_sha256": "cbbc27d1e8ae143b442b5d81975ee904c5d42ab5d837fa3b63ad3b049cea9915",
+    "command_line": "C:\\Users\\jonat\\sdr-tools\\rtl-sdr\\rtl_sdr.exe -f 907800000 -s 2048000 -g 40.0 -p 0 -n 122880000 captures/raw\\20260912-004823_flair_vent01_vent01-open-highgain_fc-907800000_sr-2048000_gain-400.cu8"
+  },
+  "timeline": [
+    {
+      "time_utc": "2026-09-12T00:48:28.831621Z",
+      "time_offset_sec": 0.0,
+      "event": "capture_start",
+      "details": ""
+    },
+    {
+      "time_utc": "2026-09-12T00:48:38.831621Z",
+      "time_offset_sec": 10.0,
+      "event": "action_performed",
+      "details": "vent01-open-highgain"
+    },
+    {
+      "time_utc": "2026-09-12T00:49:29.920255Z",
+      "time_offset_sec": 61.088634,
+      "event": "capture_end",
+      "details": ""
+    }
+  ],
+  "notes": ""
+}
