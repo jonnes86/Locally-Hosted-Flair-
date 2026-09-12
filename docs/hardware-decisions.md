@@ -1,8 +1,8 @@
 # Hardware Decisions Log
 
-**Version:** 1.0  
-**Date:** 2026-09-10  
-**Status:** Phase 1 — No transceiver hardware selected yet  
+**Version:** 2.0  
+**Date:** 2026-09-11  
+**Status:** Phase 1b — CC1101 sniffer hardware selected  
 
 ## Purpose
 
@@ -12,53 +12,55 @@ This document tracks hardware selection decisions for the Flair local gateway. H
 
 | Item | Model | Purpose | Status |
 |------|-------|---------|--------|
-| SDR Receiver | RTL-SDR.com Blog V3 (R820T2/RTL2832U) | Receive-only scanning and capture | Available |
-| Antenna | 915 MHz (type TBD) | ISM band reception | Available |
+| SDR Receiver | RTL-SDR.com Blog V3 (R820T2/RTL2832U) | Receive-only scanning and capture | ✅ Phase 1a complete |
+| Antenna | 915 MHz | ISM band reception | Available |
 | Host PC | Windows 11 Pro x64 | Capture and analysis | Active |
+| **ESP32 DevKit** | **ESP32-WROOM-32** | **CC1101 sniffer / gateway MCU** | **TO ORDER** |
+| **CC1101 Module** | **915 MHz (E07-915M10S or similar)** | **Sub-GHz transceiver** | **TO ORDER** |
 
 ## Transceiver Selection Criteria
 
-**Do NOT select a transceiver until Phase 1 receive-only characterization is complete.**
+| Requirement | Determined By | Observed Value | CC1101 Support |
+|-------------|---------------|----------------|----------------|
+| Frequency coverage | Scan: 904-927 MHz | **905-925 MHz** (10+ channels) | ✅ 300-928 MHz |
+| Modulation support | rtl_433 analysis | **FSK with Manchester** | ✅ 2-FSK/GFSK + Manchester |
+| Data rate | rtl_433 symbol timing | **~36 kbps** (est. 38.4 kbps) | ✅ 0.6-500 kbps |
+| Bandwidth | Scan: per-channel BW | **~325-366 kHz** | ✅ configurable RX BW |
+| Frequency hopping | Multi-channel scan | **YES — 10+ channels** | ✅ fast freq switching |
+| Timing precision | Burst analysis | **2-90 ms bursts** | ✅ sub-ms packet handling |
+| TX power | FCC filing | Part 15 low power | ✅ configurable |
 
-The transceiver must satisfy ALL of the following, based on observed protocol characteristics:
+## Candidate Transceivers — **EVALUATED**
 
-| Requirement | Determined By | Current Value |
-|-------------|---------------|---------------|
-| Frequency coverage | Observed center freq + hopping range | UNKNOWN |
-| Modulation support | Observed modulation type | UNKNOWN |
-| Data rate | Observed symbol rate | UNKNOWN |
-| Bandwidth | Observed occupied BW | UNKNOWN |
-| Frequency hopping | Observed hop pattern + timing | UNKNOWN |
-| Timing precision | Observed burst/ACK timing | UNKNOWN |
-| TX power | Puck/Bridge FCC filing | UNKNOWN |
-
-## Candidate Transceivers
-
-*Evaluate AFTER Phase 1 data is collected.*
-
-| Candidate | Freq Range | Modulation | Hop Support | Notes | Suitability |
-|-----------|-----------|------------|-------------|-------|-------------|
-| TI CC1101 | 300–928 MHz | OOK/2-FSK/GFSK/4-FSK/MSK | Yes (with MCU) | Common in ISM devices | TBD |
-| Semtech SX1276 | 137–1020 MHz | LoRa/FSK/OOK | Limited | LoRa-focused | TBD |
-| HackRF One | 1 MHz–6 GHz | Any (SDR) | Yes (software) | Full SDR, half-duplex | TBD |
-| YARD Stick One | 300–928 MHz | OOK/GFSK/2-FSK/4-FSK/MSK | Yes | CC1111-based, designed for ISM | TBD |
-| TI CC1110/CC1111 | 300–928 MHz | Same as CC1101 | Yes | SoC version with 8051 MCU | TBD |
-| Flipper Zero (internal) | Sub-GHz | CC1101-based | Yes | Consumer tool, limited API | TBD |
+| Candidate | Suitability | Rationale |
+|-----------|-------------|-----------|
+| **TI CC1101** | ✅ **SELECTED** | Same chip as Flair Bridge (FCC confirmed). Native support for observed modulation, data rate, frequency range. Hardware handles demod, sync, CRC. |
+| Semtech SX1276 | ❌ Not suitable | LoRa-focused, FSK mode limited. Not CC1101-compatible at protocol level. |
+| HackRF One | ⚠️ Overkill | Full SDR, but still requires software demod. Same SNR issues as RTL-SDR. $300+. |
+| YARD Stick One | ⚠️ Possible | CC1111-based (CC1101 compatible), but $100+ and less flexible than ESP32+CC1101. |
+| Flipper Zero | ⚠️ Limited | Has CC1101 internally, but limited API. Replay fails (community confirmed). |
 
 ## Decision Log
 
 | Date | Decision | Rationale | Evidence |
 |------|----------|-----------|----------|
 | 2026-09-10 | Begin with RTL-SDR V3 receive-only | Discover protocol before selecting TX hardware | Project requirement |
-| — | — | — | — |
+| 2026-09-11 | **Select ESP32 + CC1101** for sniffer/gateway | CC1101 is the same chip Flair Bridge uses. RTL-SDR confirmed modulation and frequencies but can't extract clean packet bytes due to SNR/clock recovery limits. CC1101 handles demod in hardware. | FCC filing 2AK78BRIDGE confirms CC1101. SDR captures confirm FSK + Manchester at ~38.4 kbps on 905-925 MHz. |
 
-## Gateway Platform Candidates
+## Gateway Platform — **SELECTED**
 
-*Evaluate AFTER transceiver is selected.*
+| Platform | Selection | Rationale |
+|----------|-----------|-----------|
+| **ESP32 + CC1101** | ✅ **SELECTED** | Low cost (~$8), same transceiver as Flair, ESPHome/Arduino support, WiFi for HA integration, becomes the final gateway hardware |
+| Raspberry Pi + USB | ❌ Rejected | Overkill, no native sub-GHz radio |
+| Custom PCB | ❌ Rejected (for now) | Premature — ESP32+CC1101 module is sufficient |
+| Repurposed Flair Bridge | ❌ Rejected | Firmware likely locked, risk of bricking |
 
-| Platform | Pros | Cons | Suitability |
-|----------|------|------|-------------|
-| ESP32 + sub-GHz transceiver | Low power, ESPHome compatible, cheap | Limited processing, needs external radio | TBD |
-| Raspberry Pi + USB transceiver | Full Linux, easy development | More power, overkill? | TBD |
-| Custom PCB | Optimized, compact | Development time, cost for small qty | TBD |
-| Repurposed Flair Bridge | Already has correct radio | Requires firmware RE, may be locked | TBD |
+## Wiring & Setup
+
+See [cc1101-wiring.md](cc1101-wiring.md) for complete wiring guide and shopping list.
+
+
+## Purpose
+
+
