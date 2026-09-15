@@ -17,14 +17,36 @@ bool CC1101::init() {
         pinMode(_gdo2_pin, INPUT);
     }
 
-    SPI.begin();
+    // Explicitly set SPI pins for ESP32
+    SPI.begin(18, 19, 23, _cs_pin);  // SCK, MISO, MOSI, SS
+    SPI.setFrequency(1000000);  // 1 MHz SPI clock (conservative)
+    SPI.setBitOrder(MSBFIRST);
+    SPI.setDataMode(SPI_MODE0);
+
+    Serial.println("SPI initialized, resetting CC1101...");
     reset();
+    delay(100);
 
     // Verify SPI connection by reading version register
+    // CC1101 version should be 0x14 (decimal 20)
+    uint8_t partnum = readReg(CC1101_PARTNUM | CC1101_READ_BURST);
     uint8_t version = readReg(CC1101_VERSION | CC1101_READ_BURST);
-    if (version == 0 || version == 0xFF) {
+    Serial.printf("CC1101 PARTNUM: 0x%02X, VERSION: 0x%02X\n", partnum, version);
+
+    if (version == 0x00 || version == 0xFF) {
+        Serial.println("ERROR: CC1101 not responding on SPI.");
+        Serial.println("Check wiring:");
+        Serial.printf("  CS  = GPIO %d\n", _cs_pin);
+        Serial.printf("  GDO0= GPIO %d\n", _gdo0_pin);
+        Serial.println("  SCK = GPIO 18");
+        Serial.println("  MOSI= GPIO 23");
+        Serial.println("  MISO= GPIO 19");
+        Serial.println("  VCC = 3.3V (NOT 5V!)");
+        Serial.println("  GND = GND");
         return false;
     }
+
+    Serial.printf("CC1101 detected! (version 0x%02X)\n", version);
 
     // Default Configuration
     writeReg(CC1101_IOCFG2, 0x29);
@@ -53,17 +75,32 @@ bool CC1101::init() {
     return true;
 }
 
+
 void CC1101::reset() {
     digitalWrite(_cs_pin, LOW);
     delay(1);
     digitalWrite(_cs_pin, HIGH);
     delay(1);
     digitalWrite(_cs_pin, LOW);
-    while (digitalRead(MISO) == HIGH);
+    // Wait for MISO (SO) to go low, with timeout
+    unsigned long timeout = millis() + 100;
+    while (digitalRead(19) == HIGH) {
+        if (millis() > timeout) {
+            Serial.println("WARNING: MISO timeout during reset");
+            break;
+        }
+    }
     writeStrobe(CC1101_SRES);
-    while (digitalRead(MISO) == HIGH);
+    timeout = millis() + 100;
+    while (digitalRead(19) == HIGH) {
+        if (millis() > timeout) {
+            Serial.println("WARNING: MISO timeout after SRES");
+            break;
+        }
+    }
     digitalWrite(_cs_pin, HIGH);
 }
+
 
 void CC1101::setFrequency(float mhz) {
     _freq = mhz;

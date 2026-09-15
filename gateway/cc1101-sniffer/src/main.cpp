@@ -1,122 +1,114 @@
 #include <Arduino.h>
-#include "cc1101.h"
+#include <ELECHOUSE_CC1101_SRC_DRV.h>
 
-// Define Pins
-#define SCK  18
-#define MISO 19
-#define MOSI 23
-#define SS   5
-#define GDO0 22
-#define GDO2 21
+// SPI Pins (standard VSPI)
+#define CC1101_SCK  18
+#define CC1101_MISO 19
+#define CC1101_MOSI 23
+#define CC1101_CS   5
+#define CC1101_GDO0 22   // Current wiring - used for RX data/interrupt
 
-CC1101 radio(SS, GDO0, GDO2);
-
-// Configurations to scan
-float frequencies[] = {907.83, 907.47, 924.08, 909.56, 911.59, 904.78, 906.40};
-float rates[] = {2.4, 10, 38.4, 50, 100, 250};
-uint16_t sync_words[] = {0xD391, 0x7A0E, 0x930B, 0x0000, 0x5555, 0xAAAA};
-Modulation modulations[] = {MOD_2FSK, MOD_GFSK};
-float deviations[] = {25.4, 47.6, 95.2, 126.9, 190.4};
-bool manchester[] = {true, false};
-
-// Modes
-enum Mode {
-    MODE_SCAN,
-    MODE_SNIFF
-};
-
-Mode currentMode = MODE_SCAN;
-
-// Scan state
-int freq_idx = 0;
-int rate_idx = 0;
-int sync_idx = 0;
-int mod_idx = 0;
-int dev_idx = 0;
-int manch_idx = 0;
-
-unsigned long lastConfigTime = 0;
-const unsigned long SCAN_INTERVAL = 2000; // 2 seconds per config
-
-void setupConfig() {
-    radio.setFrequency(frequencies[freq_idx]);
-    radio.setDataRate(rates[rate_idx]);
-    radio.setModulation(modulations[mod_idx]);
-    radio.setDeviation(deviations[dev_idx]);
-    radio.setSyncWord(sync_words[sync_idx]);
-    radio.setManchester(manchester[manch_idx]);
-    radio.setRxBandwidth(500.0); // wide bandwidth for sniffing
-    radio.startRx();
-}
-
-void printConfig(bool match) {
-    if (match) {
-        Serial.println("\n*** MATCH FOUND ***");
-    } else {
-        Serial.println("\n--- Scanning Config ---");
-    }
-    Serial.printf("Freq: %.3f MHz\n", frequencies[freq_idx]);
-    Serial.printf("Rate: %.1f kbps\n", rates[rate_idx]);
-    Serial.printf("Mod: %s\n", modulations[mod_idx] == MOD_2FSK ? "2-FSK" : "GFSK");
-    Serial.printf("Dev: %.1f kHz\n", deviations[dev_idx]);
-    Serial.printf("Sync: 0x%04X\n", sync_words[sync_idx]);
-    Serial.printf("Manchester: %s\n", manchester[manch_idx] ? "ON" : "OFF");
-}
-
-void nextConfig() {
-    manch_idx++;
-    if (manch_idx >= sizeof(manchester)/sizeof(manchester[0])) { manch_idx = 0; dev_idx++; }
-    if (dev_idx >= sizeof(deviations)/sizeof(deviations[0])) { dev_idx = 0; mod_idx++; }
-    if (mod_idx >= sizeof(modulations)/sizeof(modulations[0])) { mod_idx = 0; sync_idx++; }
-    if (sync_idx >= sizeof(sync_words)/sizeof(sync_words[0])) { sync_idx = 0; rate_idx++; }
-    if (rate_idx >= sizeof(rates)/sizeof(rates[0])) { rate_idx = 0; freq_idx++; }
-    if (freq_idx >= sizeof(frequencies)/sizeof(frequencies[0])) { freq_idx = 0; }
-    
-    setupConfig();
-    printConfig(false);
-}
+// Known Flair frequencies from SDR analysis
+float frequencies[] = {906.40, 907.47, 907.83, 909.56, 904.78, 911.59, 915.00, 924.08};
+const int NUM_FREQS = 8;
 
 void setup() {
     Serial.begin(115200);
     while (!Serial);
-
-    Serial.println("Starting CC1101 Sniffer...");
-
-    if (!radio.init()) {
-        Serial.println("CC1101 Initialization failed!");
-        while (1) delay(100);
+    
+    Serial.println("=== Flair CC1101 Sniffer (ELECHOUSE) ===");
+    
+    // Initialize CC1101 with explicit SPI pins
+    ELECHOUSE_cc1101.setSpiPin(CC1101_SCK, CC1101_MISO, CC1101_MOSI, CC1101_CS);
+    ELECHOUSE_cc1101.Init();
+    
+    if (ELECHOUSE_cc1101.getCC1101()) {
+        Serial.println("CC1101 SPI connection OK");
+    } else {
+        Serial.println("CC1101 not detected!");
+        while (true) delay(1000);
     }
     
-    Serial.println("CC1101 Initialized.");
-    setupConfig();
-    printConfig(false);
-    lastConfigTime = millis();
+    // Phase 1: RSSI scan to verify reception at 915 MHz band
+    Serial.println("\n--- Phase 1: RSSI Scan ---");
+    Serial.println("Scanning Flair frequencies for RF energy...");
+    Serial.println("SEND VENT COMMANDS FROM FLAIR APP NOW!\n");
+    
+    // Quick baseline RSSI scan
+    for (int i = 0; i < NUM_FREQS; i++) {
+        ELECHOUSE_cc1101.setMHZ(frequencies[i]);
+        ELECHOUSE_cc1101.SetRx();
+        delay(10);
+        
+        int8_t maxRssi = -128;
+        for (int s = 0; s < 100; s++) {
+            int8_t rssi = ELECHOUSE_cc1101.getRssi();
+            if (rssi > maxRssi) maxRssi = rssi;
+            delayMicroseconds(500);
+        }
+        Serial.printf("  %.2f MHz: max RSSI = %d dBm\n", frequencies[i], maxRssi);
+    }
+    
+    // Phase 2: Fast RSSI monitoring with spike detection
+    Serial.println("\n--- Phase 2: Continuous RSSI Monitor ---");
+    Serial.println("Watching for signal spikes...");
+    Serial.println("Keep sending vent commands!\n");
 }
 
+int currentFreq = 0;
+unsigned long lastSwitch = 0;
+int8_t noiseFloor = -110;
+int spikeCount = 0;
+
 void loop() {
-    uint8_t buffer[64];
-    uint8_t len = sizeof(buffer);
+    unsigned long now = millis();
     
-    if (radio.receivePacket(buffer, &len)) {
-        if (currentMode == MODE_SCAN) {
-            printConfig(true);
-            currentMode = MODE_SNIFF; // Lock onto this config
-            Serial.println("Switching to SNIFF mode...");
+    // Cycle frequency every 3 seconds
+    if (now - lastSwitch >= 3000) {
+        currentFreq = (currentFreq + 1) % NUM_FREQS;
+        ELECHOUSE_cc1101.setMHZ(frequencies[currentFreq]);
+        ELECHOUSE_cc1101.SetRx();
+        delay(1);
+        
+        // Calibrate noise floor
+        int32_t total = 0;
+        for (int i = 0; i < 50; i++) {
+            total += ELECHOUSE_cc1101.getRssi();
+            delayMicroseconds(200);
+        }
+        noiseFloor = total / 50;
+        
+        Serial.printf("[%4lus] %.2f MHz (noise: %d dBm)\n",
+                     now / 1000, frequencies[currentFreq], noiseFloor);
+        lastSwitch = now;
+    }
+    
+    // Fast RSSI sampling
+    int8_t rssi = ELECHOUSE_cc1101.getRssi();
+    
+    // Trigger on signal 6 dB above noise
+    if (rssi > noiseFloor + 6 && rssi > -95) {
+        // Track the spike
+        int8_t peak = rssi;
+        unsigned long spikeStart = micros();
+        int samples = 0;
+        
+        while (ELECHOUSE_cc1101.getRssi() > noiseFloor + 3) {
+            int8_t r = ELECHOUSE_cc1101.getRssi();
+            if (r > peak) peak = r;
+            samples++;
+            delayMicroseconds(50);
+            if (samples > 2000) break; // Max 100ms
         }
         
-        Serial.printf("RSSI: %d dBm\n", radio.getRSSI());
-        Serial.printf("LQI: %d\n", radio.getLQI());
-        Serial.printf("Packet (%d bytes): ", len);
-        for (int i = 0; i < len; i++) {
-            Serial.printf("%02X ", buffer[i]);
-        }
-        Serial.println();
+        unsigned long duration = micros() - spikeStart;
+        spikeCount++;
+        
+        Serial.printf("  *** SPIKE #%d @ %.2f MHz: peak=%d dBm, "
+                      "dur=%lu us, samples=%d ***\n",
+                     spikeCount, frequencies[currentFreq], 
+                     peak, duration, samples);
     }
     
-    if (currentMode == MODE_SCAN) {
-        if (millis() - lastConfigTime >= SCAN_INTERVAL) {
-            nextConfig();
-            lastConfigTime = millis();
-        }
-    }
+    delayMicroseconds(100); // ~10,000 samples/sec
 }
